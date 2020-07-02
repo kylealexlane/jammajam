@@ -26,6 +26,7 @@ export function create(tracks: Track[], beatNotifier: BeatNotifier): Tone.Sequen
 
 export function update(loop: Tone.Sequence, tracks: Track[], beatNotifier: BeatNotifier): Tone.Sequence {
   loop.callback = loopProcessor(tracks, beatNotifier);
+  console.log('updating loop: ', loop);
   return loop;
 }
 

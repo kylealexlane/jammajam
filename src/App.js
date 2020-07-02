@@ -25,6 +25,14 @@ import * as sequencer from "./sequencer";
 import * as model from "./model";
 import samples from "./samples.json";
 
+import Population from "./simple_ga/population"
+import DNA from "./simple_ga/dna"
+
+
+// const fetch = require("node-fetch");
+// const fs = require('fs');
+
+import { Midi } from "@tonejs/midi";
 
 class SampleSelector extends Component {
   state: {
@@ -82,7 +90,7 @@ function TrackListView({
     <tbody>{
       tracks.map((track, i) => {
         return (
-          <tr key={i}className="track">
+          <tr key={i} className="track">
             <th>
               <SampleSelector id={track.id} current={track.name} onChange={updateTrackSample} />
             </th>
@@ -301,12 +309,53 @@ class App extends Component {
     this.setState({shareHash});
   };
 
+  testGA = () => {
+    const numBeats = 16;
+    let target =  new Array(numBeats);
+    target.fill(false);
+    target[0] = true;
+    target[4] = true;
+    target[8] = true;
+    target[12] = true;
+    let startingbeat = this.state.tracks[0].beats;
+
+    console.log('starting beat: ', startingbeat);
+
+    const population = new Population(numBeats, target, startingbeat);
+    console.log(population);
+
+    population.runNTimes(1);
+    const newBeat = population.returnBestFit();
+
+    console.log('new beat is: ', newBeat);
+
+    let newTracks = this.state.tracks;
+    newTracks[0].beats = newBeat;
+    this.updateTracks(newTracks);
+    // // const { Midi } = require('@tonejs/midi');
+    //
+    // // const midiData = fs.readFileSync("/GA/BEAT1.mid");
+    // // const midi = new Tone.MIDI.Midi(midiData);
+    // // console.log(midi);
+    // async function getMidi() {
+    //   const baseMidi = await Midi.fromUrl("/GA/Alan Walker - Faded.mid");
+    //
+    //   return baseMidi;
+    // }
+    // // const baseMidi = new Midi();
+    //
+    // const midi = getMidi();
+    // console.log(midi);
+
+  };
+
   render() {
+    console.log('current state is: ', this.state);
     const {bpm, currentBeat, playing, shareHash, tracks} = this.state;
     const {updateBPM, start, stop, addTrack, share, randomSong, closeDialog} = this;
     return (
       <div className="app">
-        <h3>tinysynth</h3>
+        <h3>jammajam</h3>
         {shareHash ?
           <ShareDialog hash={shareHash} closeDialog={closeDialog} /> : null}
         <table>
@@ -329,6 +378,9 @@ class App extends Component {
             deleteTrack={this.deleteTrack} />
           <Controls {...{bpm, updateBPM, playing, start, stop, addTrack, share}} />
         </table>
+        <button onClick={this.testGA} style={{ height: 40, width: 100}}>
+          More Rock and Roll!
+        </button>
       </div>
     );
   }
