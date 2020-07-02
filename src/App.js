@@ -77,6 +77,22 @@ class SampleSelector extends Component {
   }
 }
 
+function GenreOption({
+  genreFitnessMapping,
+  updateGenreSlider,
+                     }) {
+  return (
+    <div style={{ marginTop: 50 }}>
+      {genreFitnessMapping.name}
+      <div style={{ width: 400}}>
+        <Slider min={0} max={1} step={.1} value={genreFitnessMapping.weighting}
+                onChange={event => updateGenreSlider(genreFitnessMapping.index, parseFloat(event.target.value))}
+        />
+      </div>
+    </div>
+  );
+}
+
 function TrackListView({
   tracks,
   currentBeat,
@@ -193,6 +209,7 @@ class App extends Component {
     currentBeat: number,
     playing: boolean,
     tracks: Track[],
+    genreMappings: [],
     shareHash: ?string,
   };
 
@@ -222,10 +239,18 @@ class App extends Component {
 
   initializeState(state: {bpm?: number, tracks: Track[]}) {
     this.state = {
-      bpm: 120,
+      bpm: 60,
       playing: false,
       currentBeat: -1,
       shareHash: null,
+      genreMappings: [
+        {
+          name: 'Rock',
+          weighting: 1,
+          index: 0,
+          mappingFunc: rock_mapping,
+        },
+      ],
       ...state,
     };
     this.loop = sequencer.create(state.tracks, this.updateCurrentBeat);
@@ -310,41 +335,60 @@ class App extends Component {
     this.setState({shareHash});
   };
 
-  createSequentialFitnessMapping = (allTargets) => {
+  updateGenreSlider = (index, newWeighting) => {
+    let newGenreMappings = this.state.genreMappings;
+    newGenreMappings[index].weighting = newWeighting;
+
+    this.setState({
+      ...this.state,
+      genreMappings: newGenreMappings,
+    })
+  };
+
+  getAllTrackMappings = () => {
+    // Weightings are list of values ranging from 0 - 1 ... ex [0.5, 1, 0.8, ...]
     // Targets comes in an array of targets, so [rockTarget, countryTarget,...]
     // Where rockTarget is something like [[instrument1RockMapping], [instrument2RockMapping], ...]
     // We translate this to:
-    // [[[instrument1RockMapping], [instrument1CountryMapping], ...], [[instrument2RockMapping],[instrument2CountryMapping], ...], ...]
+    // [[{weighting: intrumentsWeighting, [instrument1RockMapping]}, [instrument1CountryMapping], ...], [[instrument2RockMapping],[instrument2CountryMapping], ...], ...]
 
-    let sequentialMappings = new Array(allTargets[0].length);
-    for (let i = 0; i < sequentialMappings.length; i++) {
-      sequentialMappings[i] = new Array(allTargets.length);
-    }
+    // let sequentialMappings = new Array(allTargets[0].length);
+    // for (let i = 0; i < sequentialMappings.length; i++) {
+    //   sequentialMappings[i] = new Array(allTargets.length);
+    // }
+    //
+    // console.log('empty mappings are: ', sequentialMappings);
+    //
+    // console.log('creating sequential mapping from targets: ', allTargets);
+    // allTargets.forEach(function(targetMapping, targetIndex) {
+    //   targetMapping.forEach(function(targetInstrumentMapping, instrumentIndex) {
+    //     sequentialMappings[instrumentIndex][targetIndex] = targetInstrumentMapping;
+    //   })
+    // });
+    //
+    // console.log('done sequential...', sequentialMappings);
+    // return sequentialMappings;
 
-    console.log('empty mappings are: ', sequentialMappings);
+    let allTrackMappings = [];
+    const tracks = this.state.tracks;
 
-    console.log('creating sequential mapping from targets: ', allTargets);
-    allTargets.forEach(function(targetMapping, targetIndex) {
-      targetMapping.forEach(function(targetInstrumentMapping, instrumentIndex) {
-        sequentialMappings[instrumentIndex][targetIndex] = targetInstrumentMapping;
-      })
+    this.state.genreMappings.forEach(function(genreMapping) {
+      let idealMappings = genreMapping.mappingFunc(tracks);
+      idealMappings = idealMappings.map(mapping => (
+        {...mapping,
+          weighting: genreMapping.weighting,
+      }));
+
+      allTrackMappings.push(...idealMappings)
     });
 
-    console.log('done sequential...', sequentialMappings);
-    return sequentialMappings;
+    return allTrackMappings;
   };
 
-  testGA = () => {
+  runGA = numTimes => {
     // Will break if no tracks...
     const numBeats = this.state.tracks[0].length;
     const numInstruments = this.state.tracks.length;
-    // let target =  new Array(numBeats);
-    // target.fill(false);
-    // target[0] = true;
-    // target[4] = true;
-    // target[8] = true;
-    // target[12] = true;
-    // let startingbeat = this.state.tracks[0].beats;
 
     let startingTrackBeats = [];
 
@@ -352,18 +396,20 @@ class App extends Component {
       startingTrackBeats.push(track.beats)
     });
 
-    let mappingsToUse = [];
-    mappingsToUse.push(rock_mapping(this.state.tracks));
+    let mappingsToUse = this.state.genreMappings.map(genreMapping => genreMapping.mappingFunc(this.state.tracks));
+    let mappingWeightings = this.state.genreMappings.map(genreMapping => genreMapping.weighting);
 
-    const sequentialMappings = this.createSequentialFitnessMapping(mappingsToUse);
+    // mappingsToUse.push(rock_mapping(this.state.tracks));
+
+    const sequentialMappingsWithWeightings = this.getAllTrackMappings();
 
     console.log('starting tracks are: ', this.state.tracks);
-    console.log('sequential targets are: ', sequentialMappings);
+    console.log('sequential targets are: ', sequentialMappingsWithWeightings);
 
-    const population = new Population(numBeats, numInstruments, sequentialMappings, startingTrackBeats);
+    const population = new Population(numBeats, numInstruments, sequentialMappingsWithWeightings, startingTrackBeats);
     console.log(population);
 
-    population.runNTimes(1);
+    population.runNTimes(numTimes);
     const newTrackBeats = population.returnBestFit();
 
     console.log('new tracks are: ', newTrackBeats);
@@ -410,8 +456,11 @@ class App extends Component {
             deleteTrack={this.deleteTrack} />
           <Controls {...{bpm, updateBPM, playing, start, stop, addTrack, share}} />
         </table>
-        <button onClick={this.testGA} style={{ height: 40, width: 100}}>
-          More Rock and Roll!
+        {this.state.genreMappings.map(genreMapping =>
+           (<GenreOption genreFitnessMapping={genreMapping} updateGenreSlider={this.updateGenreSlider}/>)
+        )}
+        <button onClick={() => this.runGA(3)} style={{ height: 40, width: 100}}>
+          Iterate
         </button>
       </div>
     );

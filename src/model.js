@@ -8,7 +8,7 @@ export function initTracks(): Track[] {
   return [
     {id: 1, name: "kick-deep", vol: .8, muted: false, beats: initBeats(16)},
     {id: 2, name: "snare-vinyl01", vol: .9, muted: false, beats: initBeats(16)},
-    // {id: 2, name: "hihat-reso", vol: .4, muted: false, beats: initBeats(16)},
+    {id: 3, name: "hihat-reso", vol: .4, muted: false, beats: initBeats(16)},
     // {id: 3, name: "hihat-plain", vol: .4, muted: false, beats: initBeats(16)},
     // {id: 4, name: "kick-electro01", vol: .8, muted: false, beats: initBeats(16)},
   ];

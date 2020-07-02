@@ -36,10 +36,12 @@ export function rock_mapping(tracks) {
     throw "Expecting numBeats to be a multiple of 4."
   }
 
-  // Will be list of lists.
-  let tracksIdealFitness = [];
+  // Will be list containing a dictionary for each mapping.
+  // Each mapping will have the following data type:
+  // { beats: [true, false, false, ...], trackIndex: int, weighting: 1}
+  let idealTrackMappings = [];
 
-  tracks.forEach(function(track, index) {
+  tracks.forEach(function(track, trackIndex) {
 
     let idealBeats = new Array(numBeats);
     idealBeats.fill(false);
@@ -48,7 +50,7 @@ export function rock_mapping(tracks) {
     if(track.name.includes(KICK)){
       for(let i = 0; i < numBeats; i++) {
         if (((i + 4) % 4) === 0) {
-          idealBeats [i] = true
+          idealBeats[i] = true
         }
       }
     } else if(track.name.includes(SNARE)) {
@@ -66,9 +68,9 @@ export function rock_mapping(tracks) {
       idealBeats.fill(false)
     }
 
-    tracksIdealFitness.push(idealBeats);
+    idealTrackMappings.push({beats: idealBeats, trackIndex: trackIndex, weighting: 1});
   });
 
 
-  return tracksIdealFitness;
+  return idealTrackMappings;
 }

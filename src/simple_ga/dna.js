@@ -72,29 +72,31 @@ export default function DNA(numBeats, numInstruments, mutationRate, genes) {
     this.genes = newGenes;
   };
 
-  this.calcFitness = function(sequentialTargets, nonHitScore, hitScore) {
+  this.calcFitness = function(sequentialMappings, nonHitScore, hitScore) {
     console.log('About to calcFitness, my genes are', this.genes);
+    console.log('The mappings to use are: ', sequentialMappings);
 
     let score = 0;
 
-    this.genes.forEach(function(gene, geneIndex) {
-      sequentialTargets[geneIndex].forEach(function(target) {
-        console.log('my target is', target);
-        if (target.length !== gene.length) {
-          throw 'target and genes are not equal';
-        }
+    const myGenes = this.genes;
+    sequentialMappings.forEach(function(mapping) {
+      let correspondingGene = myGenes[mapping.trackIndex];
 
-        for (let i = 0; i < gene.length; i++) {
-          // intentially leaving type coercion in case developer uses other representation of true and false.
-          if (target[i] ==  gene[i]) {
-            if (target[i]) {
-              score += hitScore;
-            } else {
-              score += nonHitScore;
-            }
+      if(correspondingGene.length !== mapping.beats.length) {
+        throw "The gene does not match the mapping of beats passed into the fitness function."
+      }
+
+      for (let i = 0; i < correspondingGene.length; i++) {
+        // intentially leaving type coercion in case developer uses other representation of true and false.
+        if (mapping.beats[i] ==  correspondingGene[i]) {
+          if (mapping[i]) {
+            score += hitScore;
+          } else {
+            score += nonHitScore;
           }
         }
-      });
+      }
+
     });
 
     console.log('score was: ', score);
