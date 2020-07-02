@@ -27,7 +27,7 @@ import samples from "./samples.json";
 
 import Population from "./simple_ga/population"
 import DNA from "./simple_ga/dna"
-import { rock_mapping } from "./fitness_mappings"
+import {kick_mapping, snare_mapping, hihat_mapping, rock_mapping} from "./fitness_mappings"
 
 
 // const fetch = require("node-fetch");
@@ -85,7 +85,7 @@ function GenreOption({
     <div style={{ marginTop: 50 }}>
       {genreFitnessMapping.name}
       <div style={{ width: 400}}>
-        <Slider min={0} max={1} step={.1} value={genreFitnessMapping.weighting}
+        <Slider min={-1} max={1} step={.1} value={genreFitnessMapping.weighting}
                 onChange={event => updateGenreSlider(genreFitnessMapping.index, parseFloat(event.target.value))}
         />
       </div>
@@ -250,6 +250,24 @@ class App extends Component {
           index: 0,
           mappingFunc: rock_mapping,
         },
+        {
+          name: 'Kick Prevalence',
+          weighting: 0,
+          index: 1,
+          mappingFunc: kick_mapping,
+        },
+        {
+          name: 'Snare Prevalence',
+          weighting: 0,
+          index: 1,
+          mappingFunc: snare_mapping,
+        },
+        {
+          name: 'HiHat Prevalence',
+          weighting: 0,
+          index: 1,
+          mappingFunc: hihat_mapping,
+        },
       ],
       ...state,
     };
@@ -346,28 +364,6 @@ class App extends Component {
   };
 
   getAllTrackMappings = () => {
-    // Weightings are list of values ranging from 0 - 1 ... ex [0.5, 1, 0.8, ...]
-    // Targets comes in an array of targets, so [rockTarget, countryTarget,...]
-    // Where rockTarget is something like [[instrument1RockMapping], [instrument2RockMapping], ...]
-    // We translate this to:
-    // [[{weighting: intrumentsWeighting, [instrument1RockMapping]}, [instrument1CountryMapping], ...], [[instrument2RockMapping],[instrument2CountryMapping], ...], ...]
-
-    // let sequentialMappings = new Array(allTargets[0].length);
-    // for (let i = 0; i < sequentialMappings.length; i++) {
-    //   sequentialMappings[i] = new Array(allTargets.length);
-    // }
-    //
-    // console.log('empty mappings are: ', sequentialMappings);
-    //
-    // console.log('creating sequential mapping from targets: ', allTargets);
-    // allTargets.forEach(function(targetMapping, targetIndex) {
-    //   targetMapping.forEach(function(targetInstrumentMapping, instrumentIndex) {
-    //     sequentialMappings[instrumentIndex][targetIndex] = targetInstrumentMapping;
-    //   })
-    // });
-    //
-    // console.log('done sequential...', sequentialMappings);
-    // return sequentialMappings;
 
     let allTrackMappings = [];
     const tracks = this.state.tracks;
@@ -376,7 +372,7 @@ class App extends Component {
       let idealMappings = genreMapping.mappingFunc(tracks);
       idealMappings = idealMappings.map(mapping => (
         {...mapping,
-          weighting: genreMapping.weighting,
+          weighting: genreMapping.weighting * mapping.weighting,
       }));
 
       allTrackMappings.push(...idealMappings)
@@ -395,11 +391,6 @@ class App extends Component {
     this.state.tracks.forEach(function(track) {
       startingTrackBeats.push(track.beats)
     });
-
-    let mappingsToUse = this.state.genreMappings.map(genreMapping => genreMapping.mappingFunc(this.state.tracks));
-    let mappingWeightings = this.state.genreMappings.map(genreMapping => genreMapping.weighting);
-
-    // mappingsToUse.push(rock_mapping(this.state.tracks));
 
     const sequentialMappingsWithWeightings = this.getAllTrackMappings();
 

@@ -90,9 +90,9 @@ export default function DNA(numBeats, numInstruments, mutationRate, genes) {
         // intentially leaving type coercion in case developer uses other representation of true and false.
         if (mapping.beats[i] ==  correspondingGene[i]) {
           if (mapping[i]) {
-            score += hitScore;
+            score += hitScore * mapping.weighting;
           } else {
-            score += nonHitScore;
+            score += nonHitScore * mapping.weighting;
           }
         }
       }
