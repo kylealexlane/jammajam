@@ -1,7 +1,7 @@
 import DNA from "./dna.js";
 
 
-export default function Population(numBeats=16, target, startingBeat) {
+export default function Population(numBeats=16, numInstruments, target, startingBeat, nonHitScore=0.5, hitScore=1) {
   // Array of tracks
   this.tracks = [];
 
@@ -10,22 +10,25 @@ export default function Population(numBeats=16, target, startingBeat) {
   // Amount of tracks
   this.popsize = 25;
 
-  this.mutationRate = 0.2;
+  this.mutationRate = 0.1;
 
   // Amount parent track partners
   this.matingpool = [];
 
+  this.nonHitScore = nonHitScore;
+  this.hitScore = hitScore;
+
   // Populate tracks
   for (let i = 0; i < this.popsize; i++) {
-    this.tracks[i] = new DNA(numBeats, this.mutationRate, startingBeat);
+    this.tracks[i] = new DNA(numBeats, numInstruments, this.mutationRate, startingBeat);
   }
 
   this.evaluate = function() {
     let maxfit = 0;
-    // Iterate through all rockets and calcultes their fitness
+    // Iterate through all tracks and calculates their fitness
     for (let i = 0; i < this.tracks.length; i++) {
       // Calculates fitness
-      this.tracks[i].calcFitness(this.target);
+      this.tracks[i].calcFitness(this.target, this.nonHitScore, this.hitScore);
       // If current fitness is greater than max, then make max equal to current
       if (this.tracks[i].fitness > maxfit) {
         maxfit = this.tracks[i].fitness;
@@ -60,11 +63,12 @@ export default function Population(numBeats=16, target, startingBeat) {
       let parentB = this.matingpool[Math.floor(Math.random() * this.matingpool.length)];
       // Creates child by using crossover function
       let child = parentA.crossover(parentB);
-      child.mutation();
+      child.mutation(this.mutationRate);
       // Creates new rocket with child dna
       newTracks[i] = child;
     }
-    // This instance of rockets are the new rockets
+    // This instance of tracks are the new tracks
+    console.log('done selection, tracks are now: ', newTracks);
     this.tracks = newTracks;
   };
 
@@ -75,7 +79,7 @@ export default function Population(numBeats=16, target, startingBeat) {
     // Iterate through all rockets and calcultes their fitness
     for (let i = 0; i < this.tracks.length; i++) {
       // Calculates fitness
-      this.tracks[i].calcFitness(this.target);
+      this.tracks[i].calcFitness(this.target, this.nonHitScore, this.hitScore);
       // If current fitness is greater than max, then make max equal to current
       if (this.tracks[i].fitness > maxfit) {
         maxfit = this.tracks[i].fitness;

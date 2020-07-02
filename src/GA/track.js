@@ -1,6 +1,6 @@
 const fetch = require("node-fetch");
 const fs = require('fs');
-const { Midi } = require('@tonejs/midi')
+const { Midi } = require('@tonejs/midi');
 
 
 function test() {
@@ -13,7 +13,7 @@ test();
 
 // Constructor function
 function Track(dna) {
-    this.midi = Midi.fromUrl('path/to/midi') // Can start from nothing or import a midi file.
+    this.midi = Midi.fromUrl('path/to/midi'); // Can start from nothing or import a midi file.
     if (midi.tracks.legnth() > 0) {
       this.track = midi.tracks[0];
     } else {

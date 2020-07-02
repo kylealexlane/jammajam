@@ -27,6 +27,7 @@ import samples from "./samples.json";
 
 import Population from "./simple_ga/population"
 import DNA from "./simple_ga/dna"
+import { rock_mapping } from "./fitness_mappings"
 
 
 // const fetch = require("node-fetch");
@@ -309,43 +310,74 @@ class App extends Component {
     this.setState({shareHash});
   };
 
+  createSequentialFitnessMapping = (allTargets) => {
+    // Targets comes in an array of targets, so [rockTarget, countryTarget,...]
+    // Where rockTarget is something like [[instrument1RockMapping], [instrument2RockMapping], ...]
+    // We translate this to:
+    // [[[instrument1RockMapping], [instrument1CountryMapping], ...], [[instrument2RockMapping],[instrument2CountryMapping], ...], ...]
+
+    let sequentialMappings = new Array(allTargets[0].length);
+    for (let i = 0; i < sequentialMappings.length; i++) {
+      sequentialMappings[i] = new Array(allTargets.length);
+    }
+
+    console.log('empty mappings are: ', sequentialMappings);
+
+    console.log('creating sequential mapping from targets: ', allTargets);
+    allTargets.forEach(function(targetMapping, targetIndex) {
+      targetMapping.forEach(function(targetInstrumentMapping, instrumentIndex) {
+        sequentialMappings[instrumentIndex][targetIndex] = targetInstrumentMapping;
+      })
+    });
+
+    console.log('done sequential...', sequentialMappings);
+    return sequentialMappings;
+  };
+
   testGA = () => {
-    const numBeats = 16;
-    let target =  new Array(numBeats);
-    target.fill(false);
-    target[0] = true;
-    target[4] = true;
-    target[8] = true;
-    target[12] = true;
-    let startingbeat = this.state.tracks[0].beats;
+    // Will break if no tracks...
+    const numBeats = this.state.tracks[0].length;
+    const numInstruments = this.state.tracks.length;
+    // let target =  new Array(numBeats);
+    // target.fill(false);
+    // target[0] = true;
+    // target[4] = true;
+    // target[8] = true;
+    // target[12] = true;
+    // let startingbeat = this.state.tracks[0].beats;
 
-    console.log('starting beat: ', startingbeat);
+    let startingTrackBeats = [];
 
-    const population = new Population(numBeats, target, startingbeat);
+    this.state.tracks.forEach(function(track) {
+      startingTrackBeats.push(track.beats)
+    });
+
+    let mappingsToUse = [];
+    mappingsToUse.push(rock_mapping(this.state.tracks));
+
+    const sequentialMappings = this.createSequentialFitnessMapping(mappingsToUse);
+
+    console.log('starting tracks are: ', this.state.tracks);
+    console.log('sequential targets are: ', sequentialMappings);
+
+    const population = new Population(numBeats, numInstruments, sequentialMappings, startingTrackBeats);
     console.log(population);
 
     population.runNTimes(1);
-    const newBeat = population.returnBestFit();
+    const newTrackBeats = population.returnBestFit();
 
-    console.log('new beat is: ', newBeat);
+    console.log('new tracks are: ', newTrackBeats);
+
+    if (newTrackBeats.length !== this.state.tracks.length){
+      throw "new track beats created do not map to the tracks already in the state."
+    }
 
     let newTracks = this.state.tracks;
-    newTracks[0].beats = newBeat;
+    this.state.tracks.forEach(function(_, trackIndex) {
+      newTracks[trackIndex].beats = newTrackBeats[trackIndex]
+    });
+
     this.updateTracks(newTracks);
-    // // const { Midi } = require('@tonejs/midi');
-    //
-    // // const midiData = fs.readFileSync("/GA/BEAT1.mid");
-    // // const midi = new Tone.MIDI.Midi(midiData);
-    // // console.log(midi);
-    // async function getMidi() {
-    //   const baseMidi = await Midi.fromUrl("/GA/Alan Walker - Faded.mid");
-    //
-    //   return baseMidi;
-    // }
-    // // const baseMidi = new Midi();
-    //
-    // const midi = getMidi();
-    // console.log(midi);
 
   };
 

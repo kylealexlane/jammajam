@@ -1,9 +1,15 @@
 
 
-export default function DNA(numBeats, mutationRate, genes) {
+export default function DNA(numBeats, numInstruments, mutationRate, genes) {
   this.numBeats = numBeats;
+  this.numInstruments = numInstruments;
   this.mutationRate = mutationRate;
   this.fitness = 0;
+
+  // List of lists, outer list corresponds to each instrument and inner list is for each set of beats.
+  // Beats will be true or false, corresponding to hit or not hit.
+  // Example with 2 instruments: [[true, false, false, false, true, false...], [true, false, false, false, true, false...]]
+  this.genes = [];
 
   // Recieves genes and create a dna object
   if (genes) {
@@ -11,63 +17,87 @@ export default function DNA(numBeats, mutationRate, genes) {
   }
   // If no genes just create random dna
   else {
-    this.genes = [false]*this.numBeats;
+    this.genes = new Array(numInstruments);
+    // If using this double check that each array of numbeats is instantiated new...
+    this.genes.fill(new Array(numBeats));
 
-    let i = 0;
-    while(i < this.genes.length) {
-      this.genes[i] = Math.random() > 0.5;
-      i ++;
-    }
+    this.genes.forEach(function(gene){
+      let i = 0;
+      while(i < gene.length) {
+        genes[i] = Math.random() > 0.5;
+        i ++;
+      }
+    });
   }
 
   // Performs a crossover with another member of the species
   this.crossover = function(partner) {
-    let newgenes = [];
+    let newGenes = [];
 
-    // Picks random midpoint
-    let mid = Math.floor(Math.random() * this.genes.length);
+    this.genes.forEach(function(gene, index){
+      let newGene = [];
 
-    for (let i = 0; i < this.genes.length; i++) {
-      // If i is greater than mid the new gene should come from this partner
-      if (i > mid) {
-        newgenes[i] = this.genes[i];
+      // Picks random midpoint
+      let mid = Math.floor(Math.random() * gene.length);
+
+      for (let i = 0; i < gene.length; i++) {
+        // If i is greater than mid the new gene should come from this partner
+        if (i > mid) {
+          newGene[i] = gene[i];
+        }
+        // If i < mid new gene should come from other partners gene's
+        else {
+          newGene[i] = partner.genes[index][i];
+        }
       }
-      // If i < mid new gene should come from other partners gene's
-      else {
-        newgenes[i] = partner.genes[i];
-      }
-    }
+
+      newGenes.push(newGene);
+    });
+
     // Gives DNA object an array
-    return new DNA(this.numBeats, this.mutationRate, newgenes);
+    return new DNA(this.numBeats, this.numInstruments, this.mutationRate, newGenes);
   };
 
   // Adds random mutation to the genes to add variance.
-  this.mutation = function() {
-    for (let i = 0; i < this.genes.length; i++) {
-      // if random number less than mutationRate new gene is then random vector
-      if (Math.random(1) < this.mutationRate) {
-        this.genes[i] = Math.random() > 0.5;
-      }
-    }
-  };
-
-  this.calcFitness = function(target) {
-    console.log('my genes are', this.genes);
-    console.log('my target is', target);
-    if (target.length !== this.genes.length) {
-      throw 'target and genes not equal';
-    }
-
-    let score = 0;
-    for (let i = 0; i < this.genes.length; i++) {
-      if (target[i] ==  this.genes[i]) {
-        if (target[i]) {
-          score += 1;
-        } else {
-          score += 0.5;
+  this.mutation = function(mutationRate) {
+    let newGenes = this.genes;
+    this.genes.forEach(function(gene, index) {
+      for (let i = 0; i < gene.length; i++) {
+        // if random number less than mutationRate new gene is then random vector
+        if (Math.random(1) < mutationRate) {
+          newGenes[index][i] = Math.random() > 0.5;
         }
       }
-    }
+    });
+    this.genes = newGenes;
+  };
+
+  this.calcFitness = function(sequentialTargets, nonHitScore, hitScore) {
+    console.log('About to calcFitness, my genes are', this.genes);
+
+    let score = 0;
+
+    this.genes.forEach(function(gene, geneIndex) {
+      sequentialTargets[geneIndex].forEach(function(target) {
+        console.log('my target is', target);
+        if (target.length !== gene.length) {
+          throw 'target and genes are not equal';
+        }
+
+        for (let i = 0; i < gene.length; i++) {
+          // intentially leaving type coercion in case developer uses other representation of true and false.
+          if (target[i] ==  gene[i]) {
+            if (target[i]) {
+              score += hitScore;
+            } else {
+              score += nonHitScore;
+            }
+          }
+        }
+      });
+    });
+
+    console.log('score was: ', score);
 
     this.fitness = score;
   }

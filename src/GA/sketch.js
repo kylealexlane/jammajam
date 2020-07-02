@@ -22,14 +22,14 @@ var rw = 200;
 var rh = 10;
 
 function setup() {
-  createCanvas(400, 300);
+  // createCanvas(400, 300);
   population = new Population();
   lifeP = createP();
   target = createVector(width / 2, 50);
 }
 
 function draw() {
-  background(0);
+  // background(0);
   population.run();
   // Displays count to window
   lifeP.html(count);
