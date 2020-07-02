@@ -21,12 +21,14 @@ Different categories for the sounds are:
   kick
   snare
   hihat
+  ride
 
  */
 
-const KICK = 'kick';
-const SNARE = 'snare';
-const HIHAT = 'hihat';
+const KICK = 'kick'; // kick-acoustic02
+const SNARE = 'snare'; // snare-acoustic02
+const HIHAT = 'hihat'; // hithat-acoustic02
+const RIDE = 'ride' // ride-acoustic02
 
 
 export function rock_mapping(tracks) {
@@ -64,11 +66,120 @@ export function rock_mapping(tracks) {
           idealBeats[i] = true;
         }
       }
+      weighting = 2;
     } else if(track.name.includes(HIHAT)){
       // if sound is in hihat category, ideal pattern is hitting every beat
       idealBeats.fill(true);
       // Weight the hihat less because it isn't as important...
       weighting = 0.5
+    } else if(track.name.includes(RIDE)){
+      // if sound is in hihat category, ideal pattern is none
+      idealBeats.fill(false);
+      weighting = 3
+    }else {
+      // For any other category, ideal pattern is not hitting the instrument.
+      idealBeats.fill(false);
+    }
+
+    idealTrackMappings.push({beats: idealBeats, trackIndex: trackIndex, weighting: weighting});
+  });
+
+
+  return idealTrackMappings;
+}
+
+export function funy_drummer_mapping(tracks) {
+  // Assuming the number of beats is consistent for all tracks...
+  const numBeats = tracks[0].beats.length;
+  if ((numBeats % 4) !== 0) {
+    throw "Expecting numBeats to be a multiple of 4."
+  }
+  let idealTrackMappings = [];
+
+  tracks.forEach(function(track, trackIndex) {
+    // Base if for everything to be weighted equally (when fitness function is working it will evaluate everything equally).
+    let weighting = 1;
+
+    let idealBeats = new Array(numBeats);
+    idealBeats.fill(false);
+
+    // if the sound is in the Kick category, then ideal is at beats 1, 2, 11, 14
+    if(track.name.includes(KICK)){
+      idealBeats[0] = true;
+      idealBeats[1] = true;
+      idealBeats[10] = true;
+      idealBeats[13] = true;
+      weighting = 3;
+    } else if(track.name.includes(SNARE)) {
+      // if sound is in snare category, ideal pattern is at beats 5, 8, 10, 12, 13, 16
+      idealBeats[4] = true;
+      idealBeats[7] = true;
+      idealBeats[9] = true;
+      idealBeats[11] = true;
+      idealBeats[12] = true;
+      idealBeats[15] = true;
+      weighting = 2;
+    } else if(track.name.includes(HIHAT)){
+      // if sound is in hihat category, ideal pattern is hitting every beat except for beats 8 and 13
+      idealBeats.fill(true);
+      idealBeats[7] = false;
+      idealBeats[12] = false;
+      weighting = 0.5
+    } else if(track.name.includes(RIDE)){
+      // if sound is in hihat category, ideal pattern is none
+      idealBeats.fill(false);
+      weighting = 3
+    }else {
+      // For any other category, ideal pattern is not hitting the instrument.
+      idealBeats.fill(false);
+    }
+
+    idealTrackMappings.push({beats: idealBeats, trackIndex: trackIndex, weighting: weighting});
+  });
+
+  return idealTrackMappings;
+}
+
+export function levee_break_mapping(tracks) {
+  // Assuming the number of beats is consistent for all tracks...
+  const numBeats = tracks[0].beats.length;
+  if ((numBeats % 4) !== 0) {
+    throw "Expecting numBeats to be a multiple of 4."
+  }
+  let idealTrackMappings = [];
+
+  tracks.forEach(function(track, trackIndex) {
+    // Base if for everything to be weighted equally (when fitness function is working it will evaluate everything equally).
+    let weighting = 1;
+
+    let idealBeats = new Array(numBeats);
+    idealBeats.fill(false);
+
+    // if the sound is in the Kick category, then ideal is at beats 1, 2, 8, 11, 12
+    if(track.name.includes(KICK)){
+      idealBeats[0] = true;
+      idealBeats[1] = true;
+      idealBeats[7] = true;
+      idealBeats[10] = true;
+      idealBeats[11] = true;
+      weighting = 3;
+    } else if(track.name.includes(SNARE)) {
+      // if sound is in snare category, ideal pattern is at beats 5, 13
+      idealBeats[4] = true;
+      idealBeats[12] = true;
+      weighting = 2;
+    } else if(track.name.includes(HIHAT)){
+      // if sound is in hihat category, ideal pattern is hitting every odd beat
+      for(let i = 0; i < numBeats; i++) {
+        if ((i % 2) === 1) {
+          idealBeats[i] = true;
+        }
+      }
+      weighting = 2
+    } else if(track.name.includes(RIDE)){
+      // if sound is in hihat category, ideal pattern is none
+      idealBeats.fill(false);
+      weighting = 3
     } else {
       // For any other category, ideal pattern is not hitting the instrument.
       idealBeats.fill(false);
@@ -77,6 +188,54 @@ export function rock_mapping(tracks) {
     idealTrackMappings.push({beats: idealBeats, trackIndex: trackIndex, weighting: weighting});
   });
 
+  return idealTrackMappings;
+}
+
+export function son_clave_mapping(tracks) {
+  // Assuming the number of beats is consistent for all tracks...
+  const numBeats = tracks[0].beats.length;
+  if ((numBeats % 4) !== 0) {
+    throw "Expecting numBeats to be a multiple of 4."
+  }
+  let idealTrackMappings = [];
+
+  tracks.forEach(function(track, trackIndex) {
+    // Base if for everything to be weighted equally (when fitness function is working it will evaluate everything equally).
+    let weighting = 1;
+
+    let idealBeats = new Array(numBeats);
+    idealBeats.fill(false);
+
+    // if the sound is in the Kick category, then ideal is at beats 1, 4, 5, 8, 9, 12, 13, 16
+    if(track.name.includes(KICK)){
+      idealBeats[0] = true;
+      idealBeats[3] = true;
+      idealBeats[4] = true;
+      idealBeats[7] = true;
+      idealBeats[8] = true;
+      idealBeats[11] = true;
+      idealBeats[12] = true;
+      idealBeats[15] = true;
+      weighting = 2;
+    } else if(track.name.includes(SNARE)) {
+      // if sound is in snare category, ideal pattern is at beats 1, 4, 7, 11, 13
+      idealBeats[0] = true;
+      idealBeats[3] = true;
+      idealBeats[6] = true;
+      idealBeats[10] = true;
+      idealBeats[12] = true;
+      weighting = 2;
+    } else if(track.name.includes(RIDE)){
+      // if sound is in hihat category, ideal pattern is hitting every beat
+      idealBeats.fill(true);
+      weighting = 3
+    } else {
+      // For any other category, ideal pattern is not hitting the instrument.
+      idealBeats.fill(false);
+    }
+
+    idealTrackMappings.push({beats: idealBeats, trackIndex: trackIndex, weighting: weighting});
+  });
 
   return idealTrackMappings;
 }

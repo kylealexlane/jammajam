@@ -81,7 +81,8 @@ export default function DNA(numBeats, numInstruments, mutationRate, genes) {
     const myGenes = this.genes;
     sequentialMappings.forEach(function(mapping) {
       let correspondingGene = myGenes[mapping.trackIndex];
-
+      console.log(correspondingGene.length)
+      console.log(mapping.beats.length)
       if(correspondingGene.length !== mapping.beats.length) {
         throw "The gene does not match the mapping of beats passed into the fitness function."
       }

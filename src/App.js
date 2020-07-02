@@ -27,13 +27,8 @@ import samples from "./samples.json";
 
 import Population from "./simple_ga/population"
 import DNA from "./simple_ga/dna"
-import {kick_mapping, snare_mapping, hihat_mapping, rock_mapping} from "./fitness_mappings"
+import {kick_mapping, snare_mapping, hihat_mapping, rock_mapping, funy_drummer_mapping, levee_break_mapping, son_clave_mapping} from "./fitness_mappings"
 
-
-// const fetch = require("node-fetch");
-// const fs = require('fs');
-
-import { Midi } from "@tonejs/midi";
 
 class SampleSelector extends Component {
   state: {
@@ -77,10 +72,7 @@ class SampleSelector extends Component {
   }
 }
 
-function GenreOption({
-  genreFitnessMapping,
-  updateGenreSlider,
-                     }) {
+function GenreOption({genreFitnessMapping, updateGenreSlider}) {
   return (
     <div style={{ marginTop: 50 }}>
       {genreFitnessMapping.name}
@@ -246,9 +238,27 @@ class App extends Component {
       genreMappings: [
         {
           name: 'Rock',
-          weighting: 1,
+          weighting: 0,
           index: 0,
           mappingFunc: rock_mapping,
+        },
+        {
+          name: 'Funky Drummer',
+          weighting: 0,
+          index: 0,
+          mappingFunc: funy_drummer_mapping,
+        },
+        {
+          name: 'Levee Break',
+          weighting: 0,
+          index: 0,
+          mappingFunc: levee_break_mapping,
+        },
+        {
+          name: 'Son Clave',
+          weighting: 0,
+          index: 0,
+          mappingFunc: son_clave_mapping,
         },
         {
           name: 'Kick Prevalence',

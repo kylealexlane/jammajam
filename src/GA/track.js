@@ -1,21 +1,14 @@
 const fetch = require("node-fetch");
 const fs = require('fs');
-const { Midi } = require('@tonejs/midi');
-
-
-function test() {
-  const midiData = fs.readFileSync("BEAT1.mid");
-  const midi = new Midi(midiData);
-  console.log(midi);
-}
-test();
+const { Midi } = require('@tonejs/midi')
 
 
 // Constructor function
 function Track(dna) {
-    this.midi = Midi.fromUrl('path/to/midi'); // Can start from nothing or import a midi file.
-    if (midi.tracks.legnth() > 0) {
-      this.track = midi.tracks[0];
+    const midiData = fs.readFileSync("BEAT1.mid");
+    this.midi = new Midi(midiData);
+    if (this.midi.tracks.legnth() > 0) {
+      this.track = this.midi.tracks[0];
     } else {
       this.track = None;
     }
@@ -26,35 +19,27 @@ function Track(dna) {
       this.dna = new DNA();
     }
     this.fitness = 0;
+    this.completed = false;
   
     // Calulates fitness of rocket
 
     // We want to check if track is close to the target genre. Could use track.notes to determine this
-    // Assuming 16 beat tracks, we could analyse how many of the 16 beats match up to the specified genre?
-
-
-
-    /*this.calcFitness = function() {
-      // Takes distance to target
-      var d = dist(this.pos.x, this.pos.y, target.x, target.y);
-  
+    // Assuming 16 beat tracks, we could analyse how many notes match up to the specified genre.
+    this.calcFitness = function(base_notes) {
+      var similarities = this.track.notes.filter(x => base_notes.includes(x)); // Get the # of notes in track that are similar to the targetted genre
+      console.log(similarities);
+      
       // Maps range of fitness
-      this.fitness = map(d, 0, width, width, 0);
+      this.fitness = similarities.length()/this.track.notes.length()
       
       // If track gets to target genre, increase fitness score
       if (this.completed) {
         this.fitness *= 10;
       }
-      // If track gets further away from target genre, decrease fitness score
-      if (this.crashed) {
-        this.fitness /= 10;
-      }
-    }; */
+    };
 
     
     // Updates state of the track
-
-
     this.update = function() {
       // Checks distance from rocket to target
       var d = dist(this.pos.x, this.pos.y, target.x, target.y);
