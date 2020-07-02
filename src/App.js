@@ -269,13 +269,13 @@ class App extends Component {
         {
           name: 'Snare Prevalence',
           weighting: 0,
-          index: 1,
+          index: 2,
           mappingFunc: snare_mapping,
         },
         {
           name: 'HiHat Prevalence',
           weighting: 0,
-          index: 1,
+          index: 3,
           mappingFunc: hihat_mapping,
         },
       ],
