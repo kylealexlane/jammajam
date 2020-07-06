@@ -86,7 +86,7 @@ function GenreOption({genreFitnessMapping, updateGenreSlider}) {
     <div style={{ marginTop: 50 }}>
       {genreFitnessMapping.name}
       <div style={{ width: 400}}>
-        <Slider min={-1} max={1} step={.1} value={genreFitnessMapping.weighting}
+        <Slider min={0} max={1} step={.1} value={genreFitnessMapping.weighting}
                 onChange={event => updateGenreSlider(genreFitnessMapping.index, parseFloat(event.target.value))}
         />
       </div>
@@ -475,7 +475,7 @@ class App extends Component {
         {this.state.genreMappings.map(genreMapping =>
            (<GenreOption genreFitnessMapping={genreMapping} updateGenreSlider={this.updateGenreSlider}/>)
         )}
-        <button onClick={() => this.runGA(1000)} style={{ height: 40, width: 100}}>
+        <button onClick={() => this.runGA(10)} style={{ height: 40, width: 100}}>
           Iterate
         </button>
       </div>

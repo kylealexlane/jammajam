@@ -8,9 +8,9 @@ export default function Population(numBeats=16, numInstruments, target, starting
   this.target = target;
 
   // Amount of tracks
-  this.popsize = 1000;
+  this.popsize = 100;
 
-  this.mutationRate = 0.1;
+  this.mutationRate = 0.01;
 
   // Amount parent track partners
   this.matingpool = [];
