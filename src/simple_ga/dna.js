@@ -73,34 +73,35 @@ export default function DNA(numBeats, numInstruments, mutationRate, genes) {
   };
 
   this.calcFitness = function(sequentialMappings, nonHitScore, hitScore) {
-    console.log('About to calcFitness, my genes are', this.genes);
-    console.log('The mappings to use are: ', sequentialMappings);
+    // console.log('About to calcFitness, my genes are', this.genes);
+    // console.log('The mappings to use are: ', sequentialMappings);
 
     let score = 0;
 
     const myGenes = this.genes;
     sequentialMappings.forEach(function(mapping) {
-      let correspondingGene = myGenes[mapping.trackIndex];
-      console.log(correspondingGene.length)
-      console.log(mapping.beats.length)
-      if(correspondingGene.length !== mapping.beats.length) {
-        throw "The gene does not match the mapping of beats passed into the fitness function."
-      }
+      if (mapping.weighting !== 0) {
+        let correspondingGene = myGenes[mapping.trackIndex];
+        if(correspondingGene.length !== mapping.beats.length) {
+          throw "The gene does not match the mapping of beats passed into the fitness function."
+        }
 
-      for (let i = 0; i < correspondingGene.length; i++) {
-        // intentially leaving type coercion in case developer uses other representation of true and false.
-        if (mapping.beats[i] ==  correspondingGene[i]) {
-          if (mapping[i]) {
-            score += hitScore * mapping.weighting;
+        for (let i = 0; i < correspondingGene.length; i++) {
+          // intentially leaving type coercion in case developer uses other representation of true and false.
+          if (mapping.beats[i] ==  correspondingGene[i]) {
+            if (mapping[i]) {
+              score += hitScore * mapping.weighting;
+            } else {
+              score += nonHitScore * mapping.weighting;
+            }
           } else {
-            score += nonHitScore * mapping.weighting;
+            score -= 1 * mapping.weighting;
           }
         }
       }
-
     });
 
-    console.log('score was: ', score);
+    // console.log('score was: ', score);
 
     this.fitness = score;
   }

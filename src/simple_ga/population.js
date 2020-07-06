@@ -1,14 +1,14 @@
 import DNA from "./dna.js";
 
 
-export default function Population(numBeats=16, numInstruments, target, startingBeat, nonHitScore=0.5, hitScore=1) {
+export default function Population(numBeats=16, numInstruments, target, startingBeat, nonHitScore=1, hitScore=1) {
   // Array of tracks
   this.tracks = [];
 
   this.target = target;
 
   // Amount of tracks
-  this.popsize = 25;
+  this.popsize = 1000;
 
   this.mutationRate = 0.1;
 
@@ -39,7 +39,7 @@ export default function Population(numBeats=16, numInstruments, target, starting
       this.tracks[i].fitness /= maxfit;
     }
 
-    console.log('in evaluate, adding to mating pool..', this.matingpool);
+    // console.log('in evaluate, adding to mating pool..', this.matingpool);
     this.matingpool = [];
     // Take tracks fitness make in to scale of 1 to 100
     // A rocket with high fitness will highly likely will be in the mating pool
@@ -49,13 +49,13 @@ export default function Population(numBeats=16, numInstruments, target, starting
         this.matingpool.push(this.tracks[i]);
       }
     }
-    console.log('in evaluate, done adding to matingpool..', this.matingpool);
+    // console.log('in evaluate, done adding to matingpool..', this.matingpool);
 
   };
 
   // Selects appropriate genes for child
   this.selection = function() {
-    console.log('about to start selection, mating pool is: ', this.matingpool);
+    // console.log('about to start selection, mating pool is: ', this.matingpool);
     let newTracks = [];
     for (let i = 0; i < this.tracks.length; i++) {
       // Picks random dna
@@ -68,7 +68,7 @@ export default function Population(numBeats=16, numInstruments, target, starting
       newTracks[i] = child;
     }
     // This instance of tracks are the new tracks
-    console.log('done selection, tracks are now: ', newTracks);
+    // console.log('done selection, tracks are now: ', newTracks);
     this.tracks = newTracks;
   };
 
@@ -93,6 +93,7 @@ export default function Population(numBeats=16, numInstruments, target, starting
   this.runNTimes = function(numTimes) {
     let i = 0;
     while (i < numTimes) {
+      console.log(i);
       this.evaluate();
       this.selection();
 

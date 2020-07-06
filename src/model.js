@@ -6,10 +6,10 @@ import samples from "./samples.json";
 
 export function initTracks(): Track[] {
   return [
-    {id: 1, name: "kick-acoustic02", vol: .8, muted: false, beats: initBeats(16)},
-    {id: 2, name: "snare-acoustic02", vol: .9, muted: false, beats: initBeats(16)},
-    {id: 3, name: "hithat-acoustic02", vol: .4, muted: false, beats: initBeats(16)},
-    {id: 3, name: "ride-acoustic02", vol: .4, muted: false, beats: initBeats(16)},
+    {id: 1, name: "kick-acoustic02", vol: .9, muted: false, beats: initBeats(16)},
+    {id: 2, name: "snare-acoustic02", vol: .7, muted: false, beats: initBeats(16)},
+    {id: 3, name: "hihat-acoustic02", vol: .4, muted: false, beats: initBeats(16)},
+    {id: 4, name: "ride-acoustic02", vol: .4, muted: false, beats: initBeats(16)},
   ];
 }
 

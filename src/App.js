@@ -27,7 +27,16 @@ import samples from "./samples.json";
 
 import Population from "./simple_ga/population"
 import DNA from "./simple_ga/dna"
-import {kick_mapping, snare_mapping, hihat_mapping, rock_mapping, funy_drummer_mapping, levee_break_mapping, son_clave_mapping} from "./fitness_mappings"
+import {
+  kick_mapping,
+  snare_mapping,
+  hihat_mapping,
+  rock_mapping,
+  funky_drummer_mapping,
+  levee_break_mapping,
+  son_clave_mapping,
+  four_on_flour
+} from "./fitness_mappings"
 
 
 class SampleSelector extends Component {
@@ -231,7 +240,7 @@ class App extends Component {
 
   initializeState(state: {bpm?: number, tracks: Track[]}) {
     this.state = {
-      bpm: 60,
+      bpm: 110,
       playing: false,
       currentBeat: -1,
       shareHash: null,
@@ -245,37 +254,43 @@ class App extends Component {
         {
           name: 'Funky Drummer',
           weighting: 0,
-          index: 0,
-          mappingFunc: funy_drummer_mapping,
+          index: 1,
+          mappingFunc: funky_drummer_mapping,
         },
         {
           name: 'Levee Break',
           weighting: 0,
-          index: 0,
+          index: 2,
           mappingFunc: levee_break_mapping,
         },
         {
           name: 'Son Clave',
           weighting: 0,
-          index: 0,
+          index: 3,
           mappingFunc: son_clave_mapping,
+        },
+        {
+          name: 'Four On FLour',
+          weighting: 0,
+          index: 4,
+          mappingFunc: four_on_flour,
         },
         {
           name: 'Kick Prevalence',
           weighting: 0,
-          index: 1,
+          index: 5,
           mappingFunc: kick_mapping,
         },
         {
           name: 'Snare Prevalence',
           weighting: 0,
-          index: 2,
+          index: 6,
           mappingFunc: snare_mapping,
         },
         {
           name: 'HiHat Prevalence',
           weighting: 0,
-          index: 3,
+          index: 7,
           mappingFunc: hihat_mapping,
         },
       ],
@@ -407,7 +422,7 @@ class App extends Component {
     console.log('starting tracks are: ', this.state.tracks);
     console.log('sequential targets are: ', sequentialMappingsWithWeightings);
 
-    const population = new Population(numBeats, numInstruments, sequentialMappingsWithWeightings, startingTrackBeats);
+    const population = new Population(numBeats, numInstruments, sequentialMappingsWithWeightings, startingTrackBeats, 1, 1);
     console.log(population);
 
     population.runNTimes(numTimes);
@@ -460,7 +475,7 @@ class App extends Component {
         {this.state.genreMappings.map(genreMapping =>
            (<GenreOption genreFitnessMapping={genreMapping} updateGenreSlider={this.updateGenreSlider}/>)
         )}
-        <button onClick={() => this.runGA(3)} style={{ height: 40, width: 100}}>
+        <button onClick={() => this.runGA(1000)} style={{ height: 40, width: 100}}>
           Iterate
         </button>
       </div>
