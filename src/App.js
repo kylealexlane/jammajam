@@ -472,12 +472,12 @@ class App extends Component {
             deleteTrack={this.deleteTrack} />
           <Controls {...{bpm, updateBPM, playing, start, stop, addTrack, share}} />
         </table>
+        <button onClick={() => this.runGA(10)} style={{ height: 40, width: 100, marginTop: 50}}>
+          Iterate
+        </button>
         {this.state.genreMappings.map(genreMapping =>
            (<GenreOption genreFitnessMapping={genreMapping} updateGenreSlider={this.updateGenreSlider}/>)
         )}
-        <button onClick={() => this.runGA(10)} style={{ height: 40, width: 100}}>
-          Iterate
-        </button>
       </div>
     );
   }
