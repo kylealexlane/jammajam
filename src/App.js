@@ -25,7 +25,7 @@ import * as sequencer from "./sequencer";
 import * as model from "./model";
 import samples from "./samples.json";
 
-import Population from "./simple_ga/population"
+import Population from "./jammajam_ga/population"
 import {
   kick_mapping,
   snare_mapping,
@@ -474,10 +474,11 @@ class App extends Component {
         <button onClick={() => this.runGA(10)} style={{ height: 40, width: 100, marginTop: 40, marginBottom: 20, marginLeft: 60}}>
           Iterate
         </button>
-        <div class="tiny-gap"></div>
+        <div className="options-container">
           {this.state.genreMappings.map(genreMapping =>
            (<GenreOption genreFitnessMapping={genreMapping} updateGenreSlider={this.updateGenreSlider}/>)
           )}
+        </div>
       </div>
     );
   }
