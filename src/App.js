@@ -26,7 +26,6 @@ import * as model from "./model";
 import samples from "./samples.json";
 
 import Population from "./simple_ga/population"
-import DNA from "./simple_ga/dna"
 import {
   kick_mapping,
   snare_mapping,
