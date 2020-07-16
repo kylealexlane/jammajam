@@ -83,11 +83,11 @@ class SampleSelector extends Component {
 
 function GenreOption({genreFitnessMapping, updateGenreSlider}) {
   return (
-    <div style={{ marginTop: 50 }}>
+    <div id="overall-vertical-div">
       {genreFitnessMapping.name}
-      <div style={{ width: 400}}>
-        <Slider min={0} max={1} step={.1} value={genreFitnessMapping.weighting}
-                onChange={event => updateGenreSlider(genreFitnessMapping.index, parseFloat(event.target.value))}
+      <div id="slider-vertical-div">
+        <Slider id="slider-vertical" min={0} max={1} step={.1} value={genreFitnessMapping.weighting}
+            onChange={event => updateGenreSlider(genreFitnessMapping.index, parseFloat(event.target.value))}
         />
       </div>
     </div>
@@ -472,12 +472,13 @@ class App extends Component {
             deleteTrack={this.deleteTrack} />
           <Controls {...{bpm, updateBPM, playing, start, stop, addTrack, share}} />
         </table>
-        <button onClick={() => this.runGA(10)} style={{ height: 40, width: 100, marginTop: 50}}>
+        <button onClick={() => this.runGA(10)} style={{ height: 40, width: 100, marginTop: 40, marginBottom: 20, marginLeft: 60}}>
           Iterate
         </button>
-        {this.state.genreMappings.map(genreMapping =>
+        <div class="tiny-gap"></div>
+          {this.state.genreMappings.map(genreMapping =>
            (<GenreOption genreFitnessMapping={genreMapping} updateGenreSlider={this.updateGenreSlider}/>)
-        )}
+          )}
       </div>
     );
   }

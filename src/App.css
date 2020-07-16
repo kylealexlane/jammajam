@@ -56,3 +56,25 @@
 .material-icons.disabled-icon {
   color: lightgrey;
 }
+
+.tiny-gap {
+  width: 100%;
+  height: 50px;
+}
+
+#overall-vertical-div {
+  text-align: center;
+  float: left;
+}
+
+#slider-vertical-div {
+  width: 160px;
+  height: auto;
+  transform: rotate(270deg);
+  margin-top: 50px;
+}
+
+#slider-vertical {
+  margin-left: auto;
+  margin-right: auto;
+}
