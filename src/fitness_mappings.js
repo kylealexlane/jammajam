@@ -231,7 +231,7 @@ export function levee_break_mapping(tracks) {
     } else if(track.name.includes(HIHAT)){
       // if sound is in hihat category, ideal pattern is hitting every odd beat
       for(let i = 0; i < numBeats; i++) {
-        if ((i % 2) === 1) {
+        if (((i+1) % 2) === 1) {
           idealBeats[i] = true;
         }
       }
