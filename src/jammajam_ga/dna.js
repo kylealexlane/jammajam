@@ -72,11 +72,12 @@ export default function DNA(numBeats, numInstruments, mutationRate, genes) {
     this.genes = newGenes;
   };
 
-  this.calcFitness = function(sequentialMappings, nonHitScore, hitScore) {
+  this.calcFitness = function(sequentialMappings, nonHitScore=1, hitScore=1) {
     // console.log('About to calcFitness, my genes are', this.genes);
     // console.log('The mappings to use are: ', sequentialMappings);
 
     let score = 0;
+    let total = 0;
 
     const myGenes = this.genes;
     sequentialMappings.forEach(function(mapping) {
@@ -87,6 +88,7 @@ export default function DNA(numBeats, numInstruments, mutationRate, genes) {
         }
 
         for (let i = 0; i < correspondingGene.length; i++) {
+          total += mapping.weighting;
           // intentially leaving type coercion in case developer uses other representation of true and false.
           if (mapping.beats[i] ==  correspondingGene[i]) {
             if (mapping[i]) {
@@ -104,5 +106,10 @@ export default function DNA(numBeats, numInstruments, mutationRate, genes) {
     // console.log('score was: ', score);
 
     this.fitness = score;
+
+    if(total){
+      return score/total;
+    }
+    return 0;
   }
 }

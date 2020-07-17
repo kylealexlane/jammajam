@@ -8,9 +8,10 @@ export default function Population(numBeats=16, numInstruments, target, starting
   this.target = target;
 
   // Amount of tracks
-  this.popsize = 100;
+  this.popsize = 200;
 
   this.mutationRate = 0.01;
+
 
   // Amount parent track partners
   this.matingpool = [];
@@ -34,6 +35,8 @@ export default function Population(numBeats=16, numInstruments, target, starting
         maxfit = this.tracks[i].fitness;
       }
     }
+    console.log('my max fitness fot that evaluate was', maxfit);
+
     // Normalises fitnesses
     for (let i = 0; i < this.tracks.length; i++) {
       this.tracks[i].fitness /= maxfit;
@@ -44,7 +47,7 @@ export default function Population(numBeats=16, numInstruments, target, starting
     // Take tracks fitness make in to scale of 1 to 100
     // A rocket with high fitness will highly likely will be in the mating pool
     for (let i = 0; i < this.tracks.length; i++) {
-      let n = this.tracks[i].fitness * 100;
+      let n = (this.tracks[i].fitness ** 3) * 100;
       for (let j = 0; j < n; j++) {
         this.matingpool.push(this.tracks[i]);
       }

@@ -82,10 +82,11 @@ class SampleSelector extends Component {
   }
 }
 
-function GenreOption({genreFitnessMapping, updateGenreSlider}) {
+function GenreOption({genreFitnessMapping, updateGenreSlider, tracksFitness}) {
   return (
     <div className={"slider-horizontal-container"}>
-      {genreFitnessMapping.name}
+      <div>{genreFitnessMapping.name}</div>
+      <div>{tracksFitness}</div>
       <div className="slider-horizontal">
         <Slider  min={0} max={1} step={.1} value={genreFitnessMapping.weighting}
             onChange={event => updateGenreSlider(genreFitnessMapping.index, parseFloat(event.target.value))}
@@ -209,6 +210,7 @@ class App extends Component {
   state: {
     bpm: number,
     tracksDNA: ?DNA,
+    numIterations: number,
     currentBeat: number,
     playing: boolean,
     tracks: Track[],
@@ -247,6 +249,7 @@ class App extends Component {
       currentBeat: -1,
       shareHash: null,
       tracksDNA: null,
+      numIterations: 10,
       genreMappings: [
         {
           name: 'Rock',
@@ -300,11 +303,7 @@ class App extends Component {
       ...state,
     };
     this.loop = sequencer.create(state.tracks, this.updateCurrentBeat);
-    if(state.tracks.length > 0) {
-      this.state.tracksDNA = new DNA(state.tracks[0].length, state.tracks.length, 0, state.tracks);
-    } else {
-      new DNA(0, 0, 0, state.tracks)
-    }
+    this.state.tracksDNA = new DNA(0, 0, 0, this.getTrackBeats(state.tracks));
     sequencer.updateBPM(this.state.bpm);
   }
 
@@ -322,12 +321,12 @@ class App extends Component {
     this.setState({currentBeat: beat});
   };
 
-
-
   updateTracks = (newTracks: Track[]) => {
     this.loop = sequencer.update(this.loop, newTracks, this.updateCurrentBeat);
+
     this.setState({
       tracks: newTracks,
+      tracksDNA: new DNA(0, 0, 0, this.getTrackBeats(newTracks)),
     });
   };
 
@@ -381,6 +380,10 @@ class App extends Component {
     this.updateBPM(bpm);
   };
 
+  updateNumIterations = numIterations => {
+    this.setState({ numIterations })
+  };
+
   share = () => {
     const {bpm, tracks} = this.state;
     const shareHash = btoa(JSON.stringify({
@@ -400,21 +403,49 @@ class App extends Component {
     })
   };
 
-  getAllTrackMappings = () => {
-    let allTrackMappings = [];
-    const tracks = this.state.tracks;
-
-    this.state.genreMappings.forEach(function(genreMapping) {
-      let idealMappings = genreMapping.mappingFunc(tracks);
-      idealMappings = idealMappings.map(mapping => (
-        {...mapping,
-          weighting: genreMapping.weighting * mapping.weighting,
+  getTrackMapping = (genreMapping, only_mapping_rating) => {
+    let idealMappings = genreMapping.mappingFunc(this.state.tracks);
+    idealMappings = idealMappings.map(mapping => (
+      {...mapping,
+        weighting: only_mapping_rating ? mapping.weighting : genreMapping.weighting * mapping.weighting,
       }));
 
-      allTrackMappings.push(...idealMappings)
+    return idealMappings;
+  };
+
+  getAllTrackMappings = () => {
+    let allTrackMappings = [];
+    // const tracks = this.state.tracks;
+
+    const trackMappingFunc = this.getTrackMapping;
+
+    this.state.genreMappings.forEach(function(genreMapping) {
+      // let idealMappings = genreMapping.mappingFunc(tracks);
+      // idealMappings = idealMappings.map(mapping => (
+      //   {...mapping,
+      //     weighting: genreMapping.weighting * mapping.weighting,
+      // }));
+
+      allTrackMappings.push(...trackMappingFunc(genreMapping))
     });
 
     return allTrackMappings;
+  };
+
+  getTrackBeats = (newTracks) => {
+    let trackToIterate = this.state.tracks;
+
+    if(newTracks) {
+      trackToIterate = newTracks;
+    }
+
+    let trackBeats = [];
+
+    trackToIterate.forEach(function(track) {
+      trackBeats.push(track.beats)
+    });
+
+    return trackBeats;
   };
 
   generatePopulation = () => {
@@ -422,15 +453,9 @@ class App extends Component {
     const numBeats = this.state.tracks[0].length;
     const numInstruments = this.state.tracks.length;
 
-    let startingTrackBeats = [];
-
-    this.state.tracks.forEach(function(track) {
-      startingTrackBeats.push(track.beats)
-    });
-
     const sequentialMappingsWithWeightings = this.getAllTrackMappings();
 
-    return new Population(numBeats, numInstruments, sequentialMappingsWithWeightings, startingTrackBeats, 1, 1);
+    return new Population(numBeats, numInstruments, sequentialMappingsWithWeightings, this.getTrackBeats(), 1, 1);
     };
 
   runGA = numTimes => {
@@ -479,12 +504,22 @@ class App extends Component {
             deleteTrack={this.deleteTrack} />
           <Controls {...{bpm, updateBPM, playing, start, stop, addTrack, share}} />
         </table>
-        <Button onClick={() => this.runGA(10)} variant="contained" color="primary">
+        <div>
+          {this.state.numIterations}
+          <Slider min={0} max={100} step={1} value={this.state.numIterations}
+                   onChange={event => this.updateNumIterations(parseFloat(event.target.value))}
+          />
+        </div>
+        <Button onClick={() => this.runGA(this.state.numIterations)} variant="contained" color="primary">
           Iterate
         </Button>
         <div className="options-container">
           {this.state.genreMappings.map(genreMapping =>
-           (<GenreOption genreFitnessMapping={genreMapping} updateGenreSlider={this.updateGenreSlider}/>)
+           (<GenreOption
+             genreFitnessMapping={genreMapping}
+             updateGenreSlider={this.updateGenreSlider}
+             tracksFitness={this.state.tracksDNA.calcFitness(this.getTrackMapping(genreMapping, true))}
+           />)
           )}
         </div>
       </div>
