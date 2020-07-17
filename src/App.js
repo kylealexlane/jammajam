@@ -6,7 +6,6 @@ import Tone from "tone";
 
 import React, { Component } from "react";
 import {
-  Button,
   Dialog,
   DialogActions,
   DialogContent,
@@ -17,6 +16,8 @@ import {
   Switch,
 } from "react-mdl";
 
+import Button from '@material-ui/core/Button';
+
 import "./App.css";
 import "react-mdl/extra/css/material.light_blue-pink.min.css";
 import "react-mdl/extra/material.js";
@@ -26,6 +27,7 @@ import * as model from "./model";
 import samples from "./samples.json";
 
 import Population from "./jammajam_ga/population"
+import DNA from "./jammajam_ga/dna"
 import {
   kick_mapping,
   snare_mapping,
@@ -82,10 +84,10 @@ class SampleSelector extends Component {
 
 function GenreOption({genreFitnessMapping, updateGenreSlider}) {
   return (
-    <div id="overall-vertical-div">
+    <div className={"slider-horizontal-container"}>
       {genreFitnessMapping.name}
-      <div id="slider-vertical-div">
-        <Slider id="slider-vertical" min={0} max={1} step={.1} value={genreFitnessMapping.weighting}
+      <div className="slider-horizontal">
+        <Slider  min={0} max={1} step={.1} value={genreFitnessMapping.weighting}
             onChange={event => updateGenreSlider(genreFitnessMapping.index, parseFloat(event.target.value))}
         />
       </div>
@@ -206,6 +208,7 @@ class App extends Component {
 
   state: {
     bpm: number,
+    tracksDNA: ?DNA,
     currentBeat: number,
     playing: boolean,
     tracks: Track[],
@@ -243,6 +246,7 @@ class App extends Component {
       playing: false,
       currentBeat: -1,
       shareHash: null,
+      tracksDNA: null,
       genreMappings: [
         {
           name: 'Rock',
@@ -296,6 +300,11 @@ class App extends Component {
       ...state,
     };
     this.loop = sequencer.create(state.tracks, this.updateCurrentBeat);
+    if(state.tracks.length > 0) {
+      this.state.tracksDNA = new DNA(state.tracks[0].length, state.tracks.length, 0, state.tracks);
+    } else {
+      new DNA(0, 0, 0, state.tracks)
+    }
     sequencer.updateBPM(this.state.bpm);
   }
 
@@ -313,9 +322,13 @@ class App extends Component {
     this.setState({currentBeat: beat});
   };
 
+
+
   updateTracks = (newTracks: Track[]) => {
     this.loop = sequencer.update(this.loop, newTracks, this.updateCurrentBeat);
-    this.setState({tracks: newTracks});
+    this.setState({
+      tracks: newTracks,
+    });
   };
 
   addTrack = () => {
@@ -388,7 +401,6 @@ class App extends Component {
   };
 
   getAllTrackMappings = () => {
-
     let allTrackMappings = [];
     const tracks = this.state.tracks;
 
@@ -405,7 +417,7 @@ class App extends Component {
     return allTrackMappings;
   };
 
-  runGA = numTimes => {
+  generatePopulation = () => {
     // Will break if no tracks...
     const numBeats = this.state.tracks[0].length;
     const numInstruments = this.state.tracks.length;
@@ -418,16 +430,14 @@ class App extends Component {
 
     const sequentialMappingsWithWeightings = this.getAllTrackMappings();
 
-    console.log('starting tracks are: ', this.state.tracks);
-    console.log('sequential targets are: ', sequentialMappingsWithWeightings);
+    return new Population(numBeats, numInstruments, sequentialMappingsWithWeightings, startingTrackBeats, 1, 1);
+    };
 
-    const population = new Population(numBeats, numInstruments, sequentialMappingsWithWeightings, startingTrackBeats, 1, 1);
-    console.log(population);
+  runGA = numTimes => {
+    let population = this.generatePopulation();
 
     population.runNTimes(numTimes);
     const newTrackBeats = population.returnBestFit();
-
-    console.log('new tracks are: ', newTrackBeats);
 
     if (newTrackBeats.length !== this.state.tracks.length){
       throw "new track beats created do not map to the tracks already in the state."
@@ -439,11 +449,9 @@ class App extends Component {
     });
 
     this.updateTracks(newTracks);
-
   };
 
   render() {
-    console.log('current state is: ', this.state);
     const {bpm, currentBeat, playing, shareHash, tracks} = this.state;
     const {updateBPM, start, stop, addTrack, share, randomSong, closeDialog} = this;
     return (
@@ -455,7 +463,7 @@ class App extends Component {
           <tr>
             <td colSpan="19">
               <p style={{textAlign: "right"}}>
-                <Button type="button" colored onClick={randomSong}>I am uninspired, get me some random tracks</Button>
+                <Button variant="contained" color="primary" onClick={randomSong}>I am uninspired, get me some random tracks</Button>
               </p>
             </td>
           </tr>
@@ -471,9 +479,9 @@ class App extends Component {
             deleteTrack={this.deleteTrack} />
           <Controls {...{bpm, updateBPM, playing, start, stop, addTrack, share}} />
         </table>
-        <button onClick={() => this.runGA(10)} style={{ height: 40, width: 100, marginTop: 40, marginBottom: 20, marginLeft: 60}}>
+        <Button onClick={() => this.runGA(10)} variant="contained" color="primary">
           Iterate
-        </button>
+        </Button>
         <div className="options-container">
           {this.state.genreMappings.map(genreMapping =>
            (<GenreOption genreFitnessMapping={genreMapping} updateGenreSlider={this.updateGenreSlider}/>)

@@ -93,7 +93,6 @@ export default function Population(numBeats=16, numInstruments, target, starting
   this.runNTimes = function(numTimes) {
     let i = 0;
     while (i < numTimes) {
-      console.log(i);
       this.evaluate();
       this.selection();
 

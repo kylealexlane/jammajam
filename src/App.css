@@ -1,5 +1,6 @@
 .app {
   margin: 1em 0 2em 2em;
+  font-family: Roboto;
 }
 
 .track th {
@@ -57,31 +58,40 @@
   color: lightgrey;
 }
 
-.tiny-gap {
-  width: 100%;
-  height: 50px;
-}
-
 .options-container {
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
 }
 
-#overall-vertical-div {
-  text-align: center;
-  float: left;
+/*#overall-vertical-div {*/
+  /*text-align: center;*/
+  /*float: left;*/
+/*}*/
+
+/*#slider-vertical-div {*/
+  /*width: 160px;*/
+  /*height: auto;*/
+  /*transform: rotate(270deg);*/
+  /*margin-top: 50px;*/
+/*}*/
+
+/*#slider-vertical {*/
+  /*margin-left: auto;*/
+  /*margin-right: auto;*/
+/*}*/
+
+.slider-horizontal-container {
+  padding-right: 20px;
+  padding-top: 20px;
+  padding-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
 }
 
-#slider-vertical-div {
-  width: 160px;
-  height: auto;
-  transform: rotate(270deg);
-  margin-top: 50px;
-}
-
-#slider-vertical {
-  margin-left: auto;
-  margin-right: auto;
+.slider-horizontal {
+  width: 200px;
 }
 
