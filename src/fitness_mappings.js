@@ -92,7 +92,6 @@ export function rock_mapping(tracks) {
       idealBeats.fill(false);
     }
 
-    console.log('rock mapping for trackingdex', trackIndex, 'is', idealBeats);
     idealTrackMappings.push({beats: idealBeats, trackIndex: trackIndex, weighting: weighting});
   });
 
@@ -140,7 +139,6 @@ export function four_on_flour(tracks) {
       idealBeats.fill(false);
     }
 
-    console.log('rock mapping for trackingdex', trackIndex, 'is', idealBeats);
     idealTrackMappings.push({beats: idealBeats, trackIndex: trackIndex, weighting: weighting});
   });
 
@@ -310,6 +308,7 @@ export function kick_mapping(tracks) {
   let idealTrackMappings = [];
 
   tracks.forEach(function(track, trackIndex) {
+    let weighting = 0;
 
     let idealBeats = new Array(numBeats);
     idealBeats.fill(false);
@@ -319,8 +318,9 @@ export function kick_mapping(tracks) {
       for(let i = 0; i < numBeats; i++) {
         idealBeats[i] = true
       }
+      weighting = 1;
     }
-    idealTrackMappings.push({beats: idealBeats, trackIndex: trackIndex, weighting: 1});
+    idealTrackMappings.push({beats: idealBeats, trackIndex: trackIndex, weighting});
   });
 
   return idealTrackMappings;
@@ -336,6 +336,7 @@ export function snare_mapping(tracks) {
   let idealTrackMappings = [];
 
   tracks.forEach(function(track, trackIndex) {
+    let weighting = 0;
 
     let idealBeats = new Array(numBeats);
     idealBeats.fill(false);
@@ -345,8 +346,9 @@ export function snare_mapping(tracks) {
       for(let i = 0; i < numBeats; i++) {
           idealBeats[i] = true
       }
+      weighting = 1;
     }
-    idealTrackMappings.push({beats: idealBeats, trackIndex: trackIndex, weighting: 1});
+    idealTrackMappings.push({beats: idealBeats, trackIndex: trackIndex, weighting});
   });
 
   return idealTrackMappings;
@@ -362,6 +364,7 @@ export function hihat_mapping(tracks) {
   let idealTrackMappings = [];
 
   tracks.forEach(function(track, trackIndex) {
+    let weighting = 0;
 
     let idealBeats = new Array(numBeats);
     idealBeats.fill(false);
@@ -371,9 +374,10 @@ export function hihat_mapping(tracks) {
       for(let i = 0; i < numBeats; i++) {
         idealBeats[i] = true
       }
+      weighting = 1;
     }
 
-    idealTrackMappings.push({beats: idealBeats, trackIndex: trackIndex, weighting: 1});
+    idealTrackMappings.push({beats: idealBeats, trackIndex: trackIndex, weighting});
   });
 
   return idealTrackMappings;
