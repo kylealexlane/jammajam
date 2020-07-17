@@ -276,7 +276,7 @@ class App extends Component {
           mappingFunc: son_clave_mapping,
         },
         {
-          name: 'Four On FLour',
+          name: 'Four on the Floor',
           weighting: 0,
           index: 4,
           mappingFunc: four_on_flour,
