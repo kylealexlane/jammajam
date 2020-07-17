@@ -24,7 +24,7 @@ export default function DNA(numBeats, numInstruments, mutationRate, genes) {
     this.genes.forEach(function(gene){
       let i = 0;
       while(i < gene.length) {
-        genes[i] = Math.random() > 0.5;
+        genes[i] = Math.random() > 0.75;
         i ++;
       }
     });
