@@ -19,6 +19,12 @@ export function create(tracks: Track[], beatNotifier: BeatNotifier): Tone.Sequen
   );
 
   Tone.Transport.bpm.value = 120;
+  // Tone.Transport.start();
+
+  return loop;
+}
+
+export function startLoop(loop) {
   Tone.Transport.start();
 
   return loop;
