@@ -354,6 +354,8 @@ export function hihat_mapping(tracks) {
   return idealTrackMappings;
 }
 
+// Colors from https://ant.design/docs/spec/colors
+
 export const GENREMAPPINGS = [
   {
     name: 'Rock',
