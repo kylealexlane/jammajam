@@ -137,9 +137,9 @@ function IteratePercentChart({formattedTracksDetails}) {
   return (
     <div className={'iterate-percent-chart-container'}>
       {allWeightingsZero?
-        <div className={"noweightings-selected"}><p>There are no beats for the algorithms to work towards.</p><p>Please select some beats!</p></div>
+        <div className={"noweightings-selected"}><p>There are no beats for the algorithms to work towards.</p><p><b>Please select some updates!</b></p></div>
         :
-        <div>
+        <div className={'iterate-percent-chart-container'}>
           <p>The algorithm will be weighted by the following beats:</p>
           {/*<div style={{ fontSize: 7 }}>*/}
             <PieChart
@@ -150,8 +150,8 @@ function IteratePercentChart({formattedTracksDetails}) {
                   return details.dataEntry.percentage > 0 ? `${Math.round(details.dataEntry.percentage)}%` : ''
                 }}
                 animate={false}
-                labelPosition={65}
-                style={{ fontSize: 7 }}
+                labelPosition={60}
+                style={{ fontSize: 10, height: 200, width: 200 }}
               />
           </div>
           }
