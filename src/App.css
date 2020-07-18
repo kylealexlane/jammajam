@@ -84,6 +84,7 @@ h4 {
 .options-collapsable-container {
   flex: 3;
   background-color: transparent;
+  font-size: 18px;
 }
 
 .iterate-container {
@@ -92,7 +93,7 @@ h4 {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  padding: 20px;
+  padding: 40px;
 }
 
 .iterate-amnt-container {
@@ -111,8 +112,8 @@ h4 {
 
 .iterate-percent-chart-container {
   /*padding: 40px;*/
-  padding-top: 40px;
-  padding-bottom: 40px;
+  padding-top: 20px;
+  padding-bottom: 20px;
   /*width: 300px;*/
   /*height: 300px;*/
   display: flex;

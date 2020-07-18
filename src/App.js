@@ -595,7 +595,7 @@ class App extends Component {
           </Collapse>
           <div className={'iterate-container'}>
             <Button className={'iterate-button'} onClick={() => this.runGA(this.state.numIterations)} type="primary">
-              Iterate to Update the Beat
+              Update the Beat
             </Button>
             <IteratePercentChart formattedTracksDetails={this.getFormattedTrackDetails()}/>
             <div className={"iterate-amnt-container"}>
