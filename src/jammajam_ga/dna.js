@@ -1,3 +1,4 @@
+import {HIT_SCORE, NONHIT_SCORE} from "./population";
 
 
 export default function DNA(numBeats, numInstruments, mutationRate, genes) {
@@ -72,7 +73,10 @@ export default function DNA(numBeats, numInstruments, mutationRate, genes) {
     this.genes = newGenes;
   };
 
-  this.calcFitness = function(sequentialMappings, nonHitScore=1, hitScore=1) {
+  this.calcFitness = function(sequentialMappings, nonHitScore=NONHIT_SCORE, hitScore=HIT_SCORE) {
+    // [[true, false, false, false], [false, true...]];
+    // [rockmapping, funkydrummermapping, ...]
+
     // console.log('About to calcFitness, my genes are', this.genes);
     // console.log('The mappings to use are: ', sequentialMappings);
 
@@ -88,17 +92,22 @@ export default function DNA(numBeats, numInstruments, mutationRate, genes) {
         }
 
         for (let i = 0; i < correspondingGene.length; i++) {
-          total += mapping.weighting;
+          let tempTotal = 0;
+          let tempScore = 0;
+
+          tempTotal += mapping.beats[i] ? mapping.weighting*hitScore : mapping.weighting*nonHitScore;
+
           // intentially leaving type coercion in case developer uses other representation of true and false.
           if (mapping.beats[i] ==  correspondingGene[i]) {
-            if (mapping[i]) {
-              score += hitScore * mapping.weighting;
+            if (mapping.beats[i]) {
+              tempScore += hitScore * mapping.weighting;
             } else {
-              score += nonHitScore * mapping.weighting;
+              tempScore += nonHitScore * mapping.weighting;
             }
-          } else {
-            score -= 1 * mapping.weighting;
           }
+
+          score += Math.sqrt(tempScore);
+          total += Math.sqrt(tempTotal);
         }
       }
     });

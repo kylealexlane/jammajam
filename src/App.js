@@ -12,11 +12,18 @@ import {
   DialogTitle,
   FABButton,
   Icon,
-  Slider,
   Switch,
 } from "react-mdl";
 
-import Button from '@material-ui/core/Button';
+import { VolumeUp, Info } from '@material-ui/icons';
+
+import { CaretRightOutlined } from '@ant-design/icons';
+
+import { Button, Card, Progress, Slider, Collapse, message } from 'antd';
+
+import { PieChart } from 'react-minimal-pie-chart';
+
+const { Panel } = Collapse;
 
 import "./App.css";
 import "react-mdl/extra/css/material.light_blue-pink.min.css";
@@ -29,16 +36,13 @@ import samples from "./samples.json";
 import Population from "./jammajam_ga/population"
 import DNA from "./jammajam_ga/dna"
 import {
-  kick_mapping,
-  snare_mapping,
-  hihat_mapping,
-  rock_mapping,
-  funky_drummer_mapping,
-  levee_break_mapping,
-  son_clave_mapping,
-  four_on_flour
+  GENREMAPPINGS
 } from "./fitness_mappings"
 
+
+const notImplementedMessage = () => {
+  message.info('This feature is in progress... check back soon!');
+};
 
 class SampleSelector extends Component {
   state: {
@@ -84,14 +88,74 @@ class SampleSelector extends Component {
 
 function GenreOption({genreFitnessMapping, updateGenreSlider, tracksFitness}) {
   return (
-    <div className={"slider-horizontal-container"}>
-      <div>{genreFitnessMapping.name}</div>
-      <div>{tracksFitness}</div>
-      <div className="slider-horizontal">
-        <Slider  min={0} max={1} step={.1} value={genreFitnessMapping.weighting}
-            onChange={event => updateGenreSlider(genreFitnessMapping.index, parseFloat(event.target.value))}
-        />
-      </div>
+    <div className={"genre-card-container"}>
+      <Card title={<div onClick={notImplementedMessage}><a><VolumeUp className="genre-playback-icon"/></a>{genreFitnessMapping.name}</div>} extra={<div onClick={notImplementedMessage}><a><Info /></a></div>}
+            style={{ width: 300, borderColor: genreFitnessMapping.weighting > 0 ? genreFitnessMapping.color : '#f0f0f0', borderWidth: 1 }}
+      >
+        <div className={"genre-card-content"}>
+          <div className="genre-card-similarity-container">
+            <Progress
+              className={"genre-card-similarity-circle"}
+              width={80}
+              type="circle"
+              strokeColor={{
+                '0%': '#108ee9',
+                '100%': '#87d068',
+              }}
+              percent={tracksFitness}
+            />
+            <p>Similarity to Current Beat</p>
+          </div>
+          <div className={"genre-card-slider-container"}>
+            <Slider
+              min={0} max={1}
+              step={.05}
+              value={genreFitnessMapping.weighting}
+              onChange={value => updateGenreSlider(genreFitnessMapping.indices, parseFloat(value))}
+
+            />
+            <div className={"genre-card-slider-annotation"}>
+              <p>Neutral</p>
+              <p>Add More</p>
+            </div>
+          </div>
+        </div>
+      </Card>
+    </div>
+  );
+}
+
+function IteratePercentChart({formattedTracksDetails}) {
+  let allWeightingsZero = true;
+
+  formattedTracksDetails.forEach(detail => {
+    if(detail.value > 0) {
+      allWeightingsZero = false;
+    }
+  });
+
+  return (
+    <div className={'iterate-percent-chart-container'}>
+      {allWeightingsZero?
+        <div className={"noweightings-selected"}><p>There are no beats for the algorithms to work towards.</p><p>Please select some beats!</p></div>
+        :
+        <div>
+          <p>The algorithm will be weighted by the following beats:</p>
+          {/*<div style={{ fontSize: 7 }}>*/}
+            <PieChart
+                data={formattedTracksDetails}
+                lineWidth={20}
+                rounded={true}
+                label={(details) => {
+                  return details.dataEntry.percentage > 0 ? `${Math.round(details.dataEntry.percentage)}%` : ''
+                }}
+                animate={false}
+                labelPosition={65}
+                style={{ fontSize: 7 }}
+              />
+          </div>
+          }
+
     </div>
   );
 }
@@ -116,7 +180,7 @@ function TrackListView({
             </th>
             <td className="vol">
               <Slider min={0} max={1} step={.1} value={track.vol}
-                onChange={event => setTrackVolume(track.id, parseFloat(event.target.value))} />
+                onChange={value => setTrackVolume(track.id, parseFloat(value))} />
             </td>
             <td className="mute">
               <Switch defaultChecked={!track.muted} onChange={event => muteTrack(track.id)} />
@@ -154,7 +218,7 @@ function TrackListView({
 }
 
 function Controls({bpm, updateBPM, playing, start, stop, addTrack, share}) {
-  const onChange = event => updateBPM(parseInt(event.target.value, 10));
+  const onChange = value => updateBPM(parseInt(value, 10));
   return (
     <tfoot className="controls">
       <tr>
@@ -198,7 +262,7 @@ function ShareDialog({hash, closeDialog}) {
         <p>Right-click, <em>Copy link address</em> to copy the link.</p>
       </DialogContent>
       <DialogActions>
-        <Button colored type="button" onClick={closeDialog}>close</Button>
+        <Button type="primary" onClick={closeDialog}>close</Button>
       </DialogActions>
     </Dialog>
   );
@@ -216,6 +280,7 @@ class App extends Component {
     tracks: Track[],
     genreMappings: [],
     shareHash: ?string,
+    hasLoopBeenCreated: boolean,
   };
 
   constructor(props: {}) {
@@ -250,56 +315,8 @@ class App extends Component {
       shareHash: null,
       tracksDNA: null,
       numIterations: 10,
-      genreMappings: [
-        {
-          name: 'Rock',
-          weighting: 0,
-          index: 0,
-          mappingFunc: rock_mapping,
-        },
-        {
-          name: 'Funky Drummer',
-          weighting: 0,
-          index: 1,
-          mappingFunc: funky_drummer_mapping,
-        },
-        {
-          name: 'Levee Break',
-          weighting: 0,
-          index: 2,
-          mappingFunc: levee_break_mapping,
-        },
-        {
-          name: 'Son Clave',
-          weighting: 0,
-          index: 3,
-          mappingFunc: son_clave_mapping,
-        },
-        {
-          name: 'Four On FLour',
-          weighting: 0,
-          index: 4,
-          mappingFunc: four_on_flour,
-        },
-        {
-          name: 'Kick Prevalence',
-          weighting: 0,
-          index: 5,
-          mappingFunc: kick_mapping,
-        },
-        {
-          name: 'Snare Prevalence',
-          weighting: 0,
-          index: 6,
-          mappingFunc: snare_mapping,
-        },
-        {
-          name: 'HiHat Prevalence',
-          weighting: 0,
-          index: 7,
-          mappingFunc: hihat_mapping,
-        },
-      ],
+      genreMappings: GENREMAPPINGS,
+      hasLoopBeenCreated: false,
       ...state,
     };
     this.loop = sequencer.create(state.tracks, this.updateCurrentBeat);
@@ -308,6 +325,10 @@ class App extends Component {
   }
 
   start = () => {
+    if(!this.state.hasLoopBeenCreated) {
+      this.loop = sequencer.startLoop(this.loop)
+    }
+
     this.setState({playing: true});
     this.loop.start();
   };
@@ -393,9 +414,9 @@ class App extends Component {
     this.setState({shareHash});
   };
 
-  updateGenreSlider = (index, newWeighting) => {
+  updateGenreSlider = (indices, newWeighting) => {
     let newGenreMappings = this.state.genreMappings;
-    newGenreMappings[index].weighting = newWeighting;
+    newGenreMappings[indices[0]].track_mappings[indices[1]].weighting = newWeighting;
 
     this.setState({
       ...this.state,
@@ -415,18 +436,13 @@ class App extends Component {
 
   getAllTrackMappings = () => {
     let allTrackMappings = [];
-    // const tracks = this.state.tracks;
 
     const trackMappingFunc = this.getTrackMapping;
 
     this.state.genreMappings.forEach(function(genreMapping) {
-      // let idealMappings = genreMapping.mappingFunc(tracks);
-      // idealMappings = idealMappings.map(mapping => (
-      //   {...mapping,
-      //     weighting: genreMapping.weighting * mapping.weighting,
-      // }));
-
-      allTrackMappings.push(...trackMappingFunc(genreMapping))
+      genreMapping.track_mappings.forEach(function(trackMapping) {
+        allTrackMappings.push(...trackMappingFunc(trackMapping, false))
+      });
     });
 
     return allTrackMappings;
@@ -455,7 +471,7 @@ class App extends Component {
 
     const sequentialMappingsWithWeightings = this.getAllTrackMappings();
 
-    return new Population(numBeats, numInstruments, sequentialMappingsWithWeightings, this.getTrackBeats(), 1, 1);
+    return new Population(numBeats, numInstruments, sequentialMappingsWithWeightings, this.getTrackBeats());
     };
 
   runGA = numTimes => {
@@ -476,22 +492,74 @@ class App extends Component {
     this.updateTracks(newTracks);
   };
 
+  getFormattedTrackDetails = () => {
+    let tracksDetailsFormatted = [];
+    // let allTrackNames = [];
+    // let allTrackWeightings = [];
+
+    this.state.genreMappings.forEach(genreMapping => {
+      genreMapping.track_mappings.forEach(trackMapping => {
+        tracksDetailsFormatted.push({title: trackMapping.name, value: trackMapping.weighting, color: trackMapping.color});
+      })
+    });
+
+    // let totalWeightings = 0;
+    // tracksRelativeDetails.forEach(relativeDetails => totalWeightings += relativeDetails.weighting);
+
+    // tracksRelativeDetails.forEach((relativeDetails, index) => tracksRelativeDetails[index]['relativePercentage'] = totalWeightings > 0 ? relativeDetails.weighting/totalWeightings : 0);
+
+    return tracksDetailsFormatted;
+  };
+
+  displayIterationContext = numIterations => {
+    let text = 'Huge';
+
+    switch(true) {
+      case numIterations < 3:
+        text = 'Tiny';
+        break;
+      case numIterations < 6:
+        text = 'Very Small';
+        break;
+      case numIterations < 10:
+        text = 'Little';
+        break;
+      case numIterations < 15:
+        text = 'Normal';
+        break;
+      case numIterations < 30:
+        text = 'Big ';
+        break;
+      case numIterations < 60:
+        text = 'Very Big';
+        break;
+      case numIterations <= 100:
+        text = 'Huge';
+        break;
+    }
+
+    return text;
+  };
+
   render() {
     const {bpm, currentBeat, playing, shareHash, tracks} = this.state;
     const {updateBPM, start, stop, addTrack, share, randomSong, closeDialog} = this;
     return (
       <div className="app">
-        <h3>jammajam</h3>
+        <h2><i>jammajam</i></h2>
         {shareHash ?
           <ShareDialog hash={shareHash} closeDialog={closeDialog} /> : null}
+        <h4>My Beat</h4>
         <table>
-          <tr>
-            <td colSpan="19">
-              <p style={{textAlign: "right"}}>
-                <Button variant="contained" color="primary" onClick={randomSong}>I am uninspired, get me some random tracks</Button>
-              </p>
-            </td>
-          </tr>
+          <thead>
+            <tr>
+              <td colSpan="19">
+                <p style={{textAlign: "right"}}>
+                  <Button type="primary" onClick={randomSong}>I am uninspired, get me some random tracks</Button>
+                </p>
+              </td>
+            </tr>
+          </thead>
           <TrackListView
             tracks={tracks}
             currentBeat={currentBeat}
@@ -504,23 +572,42 @@ class App extends Component {
             deleteTrack={this.deleteTrack} />
           <Controls {...{bpm, updateBPM, playing, start, stop, addTrack, share}} />
         </table>
-        <div>
-          {this.state.numIterations}
-          <Slider min={0} max={100} step={1} value={this.state.numIterations}
-                   onChange={event => this.updateNumIterations(parseFloat(event.target.value))}
-          />
-        </div>
-        <Button onClick={() => this.runGA(this.state.numIterations)} variant="contained" color="primary">
-          Iterate
-        </Button>
-        <div className="options-container">
-          {this.state.genreMappings.map(genreMapping =>
-           (<GenreOption
-             genreFitnessMapping={genreMapping}
-             updateGenreSlider={this.updateGenreSlider}
-             tracksFitness={this.state.tracksDNA.calcFitness(this.getTrackMapping(genreMapping, true))}
-           />)
-          )}
+        <h4>Beat Updates</h4>
+        <div className="options-overall-container">
+          <Collapse
+            bordered={false}
+            defaultActiveKey={['0']}
+            expandIcon={({ isActive }) => <CaretRightOutlined rotate={isActive ? 90 : 0} />}
+            className="options-collapsable-container"
+          >
+            {this.state.genreMappings.map((genreMapping, genreIndex) => (
+              <Panel header={genreMapping.name} key={genreIndex} className="site-collapse-custom-panel">
+                <div className="options-container">
+                  {genreMapping.track_mappings.map(trackMapping =>
+                    (<GenreOption
+                      genreFitnessMapping={trackMapping}
+                      updateGenreSlider={this.updateGenreSlider}
+                      tracksFitness={Math.round(this.state.tracksDNA.calcFitness(this.getTrackMapping(trackMapping, true)) * 100)} />
+                    ))}
+                </div>
+              </Panel>
+              ))}
+          </Collapse>
+          <div className={'iterate-container'}>
+            <Button className={'iterate-button'} onClick={() => this.runGA(this.state.numIterations)} type="primary">
+              Iterate to Update the Beat
+            </Button>
+            <IteratePercentChart formattedTracksDetails={this.getFormattedTrackDetails()}/>
+            <div className={"iterate-amnt-container"}>
+              <p>How big of a 'jump' do you want the beat to make?</p>
+              <p>{this.displayIterationContext(this.state.numIterations)}</p>
+              <div className={"iterate-amnt-slider"}>
+                <Slider min={0} max={100} step={1} value={this.state.numIterations} tipFormatter={this.displayIterationContext}
+                        onChange={value => this.updateNumIterations(parseFloat(value))} />
+
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     );

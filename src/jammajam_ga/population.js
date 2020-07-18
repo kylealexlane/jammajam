@@ -1,7 +1,10 @@
 import DNA from "./dna.js";
 
+export const NONHIT_SCORE = 0.25;
+export const HIT_SCORE = 1;
 
-export default function Population(numBeats=16, numInstruments, target, startingBeat, nonHitScore=1, hitScore=1) {
+
+export default function Population(numBeats=16, numInstruments, target, startingBeat, nonHitScore=NONHIT_SCORE, hitScore=HIT_SCORE) {
   // Array of tracks
   this.tracks = [];
 
@@ -11,7 +14,6 @@ export default function Population(numBeats=16, numInstruments, target, starting
   this.popsize = 200;
 
   this.mutationRate = 0.01;
-
 
   // Amount parent track partners
   this.matingpool = [];
@@ -35,7 +37,6 @@ export default function Population(numBeats=16, numInstruments, target, starting
         maxfit = this.tracks[i].fitness;
       }
     }
-    console.log('my max fitness fot that evaluate was', maxfit);
 
     // Normalises fitnesses
     for (let i = 0; i < this.tracks.length; i++) {
@@ -47,7 +48,7 @@ export default function Population(numBeats=16, numInstruments, target, starting
     // Take tracks fitness make in to scale of 1 to 100
     // A rocket with high fitness will highly likely will be in the mating pool
     for (let i = 0; i < this.tracks.length; i++) {
-      let n = (this.tracks[i].fitness ** 3) * 100;
+      let n = (this.tracks[i].fitness ** 2) * 100;
       for (let j = 0; j < n; j++) {
         this.matingpool.push(this.tracks[i]);
       }
