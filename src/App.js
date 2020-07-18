@@ -594,10 +594,10 @@ class App extends Component {
               ))}
           </Collapse>
           <div className={'iterate-container'}>
+            <IteratePercentChart formattedTracksDetails={this.getFormattedTrackDetails()}/>
             <Button className={'iterate-button'} onClick={() => this.runGA(this.state.numIterations)} type="primary">
               Update the Beat
             </Button>
-            <IteratePercentChart formattedTracksDetails={this.getFormattedTrackDetails()}/>
             <div className={"iterate-amnt-container"}>
               <p>How big of a 'jump' do you want the beat to make?</p>
               <p>{this.displayIterationContext(this.state.numIterations)}</p>
