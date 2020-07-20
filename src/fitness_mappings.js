@@ -81,7 +81,7 @@ export function rock_mapping(tracks) {
 }
 
 
-export function four_on_flour(tracks) {
+export function four_on_the_floor(tracks) {
   // Assuming the number of beats is consistent for all tracks...
   const numBeats = tracks[0].beats.length;
   if (tracks[0].beats.length !== 16) {
@@ -399,10 +399,10 @@ export const GENREMAPPINGS = [
     name: 'Pop',
     track_mappings: [
       {
-        name: 'Four On FLour',
+        name: 'Four on the Floor',
         weighting: 0,
         indices: [2, 0],
-        mappingFunc: four_on_flour,
+        mappingFunc: four_on_the_floor,
         color: "#52c41a",
       },
     ],
